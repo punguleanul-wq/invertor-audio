@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#121316" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Invertor Audio" />
+    <title>Invertor Audio</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --bg: #121316;
+  --panel: #1d2026;
+  --panel-strong: #252934;
+  --text: #f7f4ec;
+  --muted: #b8b3a8;
+  --accent: #ff5d73;
+  --accent-2: #31d1b4;
+  --gold: #f8c85c;
+  --line: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(49, 209, 180, 0.18), transparent 28rem),
+    radial-gradient(circle at 80% 0%, rgba(255, 93, 115, 0.2), transparent 24rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button {
+  border: 0;
+  color: inherit;
+  font: inherit;
+  touch-action: manipulation;
+}
+
+.app-shell {
+  width: min(100%, 480px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.eyebrow,
+.prompt-label,
+.score-panel label,
+.stage-status,
+.status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.icon-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  min-height: 390px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(37, 41, 52, 0.94), rgba(22, 24, 30, 0.96));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.sound-orbit {
+  position: relative;
+  height: 118px;
+  display: grid;
+  place-items: center;
+}
+
+.sound-orbit span {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  animation: pulse 2.8s ease-in-out infinite;
+}
+
+.sound-orbit span:nth-child(1) {
+  width: 82px;
+  height: 82px;
+  background: var(--accent);
+  border: 0;
+  box-shadow: 0 0 48px rgba(255, 93, 115, 0.42);
+}
+
+.sound-orbit span:nth-child(2) {
+  width: 114px;
+  height: 114px;
+}
+
+.sound-orbit span:nth-child(3) {
+  width: 146px;
+  height: 146px;
+  animation-delay: 0.25s;
+}
+
+.stage.recording .sound-orbit span {
+  animation-duration: 0.85s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.stage h2 {
+  min-height: 92px;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.timer {
+  margin: 0;
+  color: var(--gold);
+  font-size: 2.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.record-button,
+.secondary-button,
+.actions button,
+.score-panel button,
+dialog button {
+  min-height: 52px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.record-button {
+  background: var(--accent);
+  color: #24070d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.record-button.recording {
+  background: var(--gold);
+  color: #231800;
+}
+
+.secondary-button {
+  background: var(--accent-2);
+  color: #031d19;
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.stage-status {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  line-height: 1.35;
+}
+
+.stage-status.warning {
+  border-color: rgba(248, 200, 92, 0.5);
+  background: rgba(248, 200, 92, 0.12);
+  color: var(--text);
+}
+
+.mode-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mode {
+  min-height: 42px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.mode.active {
+  background: var(--text);
+  color: #17181c;
+}
+
+.score-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.score-panel article {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  display: grid;
+  gap: 10px;
+}
+
+.score-panel input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 750;
+  padding: 8px 10px;
+}
+
+.score-panel strong {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.score-panel button {
+  background: var(--panel-strong);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 10px;
+}
+
+.actions button {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status {
+  display: none;
+  min-height: 38px;
+  line-height: 1.35;
+}
+
+dialog {
+  width: min(calc(100% - 32px), 420px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #20232b;
+  color: var(--text);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+}
+
+dialog h2 {
+  margin-bottom: 10px;
+}
+
+dialog p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+dialog button {
+  width: 100%;
+  background: var(--accent-2);
+  color: #031d19;
+}
+
+@media (max-width: 360px) {
+  .app-shell {
+    padding-inline: 12px;
+  }
+
+  .stage {
+    min-height: 360px;
+    padding: 18px;
+  }
+
+  .stage h2 {
+    font-size: 1.25rem;
+  }
+
+  .mode {
+    font-size: 0.78rem;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="top-bar" aria-label="Status joc">
+        <div>
+          <p class="eyebrow">Joc de voce</p>
+          <h1>Invertor Audio</h1>
+        </div>
+        <button class="icon-button" id="helpButton" type="button" aria-label="Ajutor">?</button>
+      </section>
+
+      <section class="stage" aria-label="Recorder audio">
+        <div class="sound-orbit" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <p class="prompt-label">Provocarea rundei</p>
+        <h2 id="promptText">Spune un cuvant scurt si lasa partenerul sa ghiceasca varianta inversata.</h2>
+        <p class="timer" id="timerText">00:00</p>
+        <div class="controls">
+          <button class="record-button" id="recordButton" type="button">
+            <span id="recordIcon">●</span>
+            <span id="recordLabel">Inregistreaza</span>
+          </button>
+          <button class="secondary-button" id="playButton" type="button" disabled>Reda invers</button>
+        </div>
+        <p class="stage-status" id="stageStatusText">Atinge inregistrare si permite accesul la microfon.</p>
+      </section>
+
+      <section class="mode-strip" aria-label="Mod joc">
+        <button class="mode active" data-mode="couple" type="button">Cuplu</button>
+        <button class="mode" data-mode="party" type="button">Party</button>
+        <button class="mode" data-mode="dare" type="button">Provocări</button>
+        <button class="mode" data-mode="funny" type="button">Amuzant</button>
+        <button class="mode" data-mode="culture" type="button">Cultură</button>
+        <button class="mode" data-mode="movies" type="button">Filme</button>
+      </section>
+
+      <section class="score-panel" aria-label="Scor">
+        <article>
+          <label for="playerAName">Nume jucător</label>
+          <input id="playerAName" type="text" value="Jucător A" maxlength="18" autocomplete="off" />
+          <strong id="scoreA">0</strong>
+          <button data-score="a" type="button">+1</button>
+        </article>
+        <article>
+          <label for="playerBName">Nume jucător</label>
+          <input id="playerBName" type="text" value="Jucător B" maxlength="18" autocomplete="off" />
+          <strong id="scoreB">0</strong>
+          <button data-score="b" type="button">+1</button>
+        </article>
+      </section>
+
+      <section class="actions" aria-label="Actiuni runda">
+        <button id="newPromptButton" type="button">Provocare noua</button>
+        <button id="resetButton" type="button">Reset</button>
+      </section>
+
+      <p class="status" id="statusText">Atinge inregistrare si permite accesul la microfon.</p>
+    </main>
+
+    <dialog id="helpDialog">
+      <form method="dialog">
+        <h2>Cum se joaca</h2>
+        <p>Un jucator spune un cuvant sau o fraza scurta. Aplicatia intoarce sunetul si il reda. Celalalt incearca sa ghiceasca originalul.</p>
+        <p>Pentru iPhone, deschide pagina in Safari si foloseste Share > Add to Home Screen.</p>
+        <button type="submit">Am inteles</button>
+      </form>
+    </dialog>
+    <script type="module">
+const prompts = {
+  couple: [
+    "Te iubesc.",
+    "Îmi este dor de tine.",
+    "Sărută-mă.",
+    "Îmbrățișează-mă.",
+    "Privește-mă în ochi.",
+    "Zâmbește-mi.",
+    "Ține-mă de mână.",
+    "Vino lângă mine.",
+    "Rămâi cu mine.",
+    "Ești minunată.",
+    "Ești minunat.",
+    "Mi-ai lipsit.",
+    "Vreau un sărut.",
+    "Dă-mi un pupic.",
+    "Hai să dansăm.",
+    "Spune că mă iubești.",
+    "Mă faci fericit.",
+    "Mă faci fericită.",
+    "Tu ești alegerea mea.",
+    "Ești sufletul meu.",
+    "Îmi place zâmbetul tău.",
+    "Îmi place vocea ta.",
+    "Mă cucerești.",
+    "Vreau să te văd.",
+    "Hai mai aproape.",
+    "Nu pleca.",
+    "Îmi bați inima.",
+    "Ești adorabil.",
+    "Ești superbă.",
+    "Ești extraordinar.",
+    "Vreau o îmbrățișare.",
+    "Hai să râdem.",
+    "Hai să visăm.",
+    "Îți mulțumesc.",
+    "Îți aparțin.",
+    "Mi-ai schimbat viața.",
+    "Îmi place lângă tine.",
+    "Te aleg mereu.",
+    "Hai să ne plimbăm.",
+    "Ești lumina mea.",
+    "Îmi place parfumul tău.",
+    "Mă faci să zâmbesc.",
+    "Tu mă înțelegi.",
+    "Vreau să rămâi.",
+    "Ești tot ce vreau.",
+    "Hai să ne sărutăm.",
+    "Îmi place compania ta.",
+    "Vino în brațele mele.",
+    "Ești iubirea mea.",
+    "Te aleg în fiecare zi."
+  ],
+  party: [
+    "Hai noroc!",
+    "Ridică paharul!",
+    "Încă un shot!",
+    "Mai tare muzica!",
+    "Toată lumea dansează!",
+    "Hai pe ring!",
+    "Cine cântă?",
+    "Fă un selfie!",
+    "Zâmbește la cameră!",
+    "E timpul de dans.",
+    "Petrecerea începe!",
+    "Hai să dansăm!",
+    "Muzica mai tare!",
+    "Toți în cerc!",
+    "Bravo, încă o dată!",
+    "Cine urmează?",
+    "Mai un dans!",
+    "Hai la karaoke!",
+    "Toți aplaudă!",
+    "Aprinde luminile!",
+    "Hai să cântăm!",
+    "Ce petrecere!",
+    "Cine dansează primul?",
+    "Mai încet!",
+    "Mai repede!",
+    "Ridică mâinile!",
+    "Toți împreună!",
+    "Hai la poză!",
+    "Încă o melodie!",
+    "Ce atmosferă!",
+    "Dansează cu mine!",
+    "Unde e DJ-ul?",
+    "Schimbă melodia!",
+    "Hai la concurs!",
+    "Toți râd!",
+    "Nu te opri!",
+    "Hai încă o rundă!",
+    "Cine câștigă?",
+    "A venit pizza!",
+    "Deschide cadoul!",
+    "Hai afară!",
+    "S-a făcut dimineață!",
+    "Ce seară!",
+    "Toți pe scenă!",
+    "Ridică volumul!",
+    "Bravo tuturor!",
+    "Să înceapă jocul!",
+    "Distracția continuă!",
+    "Petrecem până dimineață!",
+    "Ne vedem la următoarea!"
+  ],
+  dare: [
+    "Vorbește ca un robot.",
+    "Vorbește ca un bebeluș.",
+    "Vorbește ca un bătrân.",
+    "Vorbește cu accent italian.",
+    "Vorbește cu accent franțuzesc.",
+    "Vorbește foarte încet.",
+    "Vorbește extrem de repede.",
+    "Șoptește tot ce spui.",
+    "Cântă propoziția.",
+    "Vorbește ca la operă.",
+    "Imită un monstru.",
+    "Imită un extraterestru.",
+    "Imită un pirat.",
+    "Imită un supererou.",
+    "Imită un prezentator TV.",
+    "Imită un comentator sportiv.",
+    "Imită un profesor.",
+    "Imită un copil de cinci ani.",
+    "Vorbește râzând.",
+    "Vorbește plângând.",
+    "Vorbește speriat.",
+    "Vorbește furios.",
+    "Vorbește ca și cum ai căsca.",
+    "Vorbește cu gura aproape închisă.",
+    "Vorbește fără să miști buzele.",
+    "Vorbește doar pe expir.",
+    "Spune totul pe o singură respirație.",
+    "Încearcă să nu râzi.",
+    "Râzi cinci secunde.",
+    "Fă o voce de vrăjitoare.",
+    "Fă o voce de vampir.",
+    "Fă o voce de dragon.",
+    "Fă o voce de desen animat.",
+    "Fă cea mai ciudată voce.",
+    "Vorbește ca și cum ai fi somnoros.",
+    "Vorbește ca și cum ai fi îndrăgostit.",
+    "Vorbește ca și cum ai fi la telefon.",
+    "Vorbește ca un AI.",
+    "Vorbește ca un reporter.",
+    "Vorbește ca un politician.",
+    "Rostește fără vocale.",
+    "Rostește exagerând fiecare literă.",
+    "Vorbește doar cu voce groasă.",
+    "Vorbește doar cu voce subțire.",
+    "Fă ecou la fiecare cuvânt.",
+    "Spune totul fără să clipești.",
+    "Închide ochii și vorbește.",
+    "Vorbește ca și cum ai fi pe Lună.",
+    "Fă cea mai amuzantă voce posibilă.",
+    "Încearcă să te faci de nerecunoscut."
+  ],
+  funny: [
+    "Hipopotam dansator.",
+    "Castravete zburător.",
+    "Banana vorbitoare.",
+    "Pizza cu înghețată.",
+    "Papagal astronaut.",
+    "Pinguin surfer.",
+    "Broască ninja.",
+    "Unicorn roz.",
+    "Găină rockstar.",
+    "Cartof fermecat.",
+    "Ardei îndrăgostit.",
+    "Dovleac dansator.",
+    "Gogoașă uriașă.",
+    "Popcorn exploziv.",
+    "Clătită zburătoare.",
+    "Pisică detectiv.",
+    "Câine filosof.",
+    "Maimuță astronaut.",
+    "Elefant balerin.",
+    "Girafă somnoroasă.",
+    "Melc turbo.",
+    "Broscoi cântăreț.",
+    "Crocodil vegetarian.",
+    "Vulpe dansatoare.",
+    "Urs în pijama.",
+    "Pinguin la plajă.",
+    "Cămilă pe skateboard.",
+    "Veveriță DJ.",
+    "Panda la sală.",
+    "Leu vegetarian.",
+    "Porumbel boxer.",
+    "Șosetă vorbitoare.",
+    "Papuc dansator.",
+    "Periuță celebră.",
+    "Aspirator romantic.",
+    "Frigider fericit.",
+    "Canapea zburătoare.",
+    "Oglindă magică.",
+    "Lingură gigantică.",
+    "Ciorap parfumat.",
+    "Clovn invizibil.",
+    "Fantomă timidă.",
+    "Dragon vegetarian.",
+    "OZN curios.",
+    "Extraterestru politicos.",
+    "Robot îndrăgostit.",
+    "Dinozaur vegan.",
+    "Monstru prietenos.",
+    "Vacă astronaut.",
+    "Șoricel campion."
+  ],
+  culture: [
+    "Turnul Eiffel",
+    "Marele Zid Chinezesc",
+    "Colosseumul",
+    "Piramidele din Giza",
+    "Machu Picchu",
+    "Taj Mahal",
+    "Big Ben",
+    "Statuia Libertății",
+    "Muntele Everest",
+    "Oceanul Pacific",
+    "Oceanul Atlantic",
+    "Marea Neagră",
+    "Dunărea",
+    "Nilul",
+    "Amazonul",
+    "Sahara",
+    "Antarctica",
+    "Groenlanda",
+    "Vulcanul Etna",
+    "Aurora Boreală",
+    "Curcubeul",
+    "Tornada",
+    "Eclipsele",
+    "Calea Lactee",
+    "Soarele",
+    "Luna",
+    "Marte",
+    "Jupiter",
+    "Saturn",
+    "Venus",
+    "Mercur",
+    "Neptun",
+    "Pluton",
+    "Leonardo da Vinci",
+    "Albert Einstein",
+    "Isaac Newton",
+    "Nikola Tesla",
+    "Marie Curie",
+    "Charles Darwin",
+    "Cristofor Columb",
+    "Neil Armstrong",
+    "Yuri Gagarin",
+    "Mozart",
+    "Beethoven",
+    "William Shakespeare",
+    "Cleopatra",
+    "Iulius Cezar",
+    "Napoleon Bonaparte",
+    "Ștefan cel Mare",
+    "Dimitrie Cantemir"
+  ],
+  movies: [
+    "Harry Potter",
+    "Hermione Granger",
+    "Ron Weasley",
+    "Lord Voldemort",
+    "Albus Dumbledore",
+    "Batman",
+    "Superman",
+    "Spider-Man",
+    "Iron Man",
+    "Captain America",
+    "Hulk",
+    "Thor",
+    "Loki",
+    "Doctor Strange",
+    "Black Panther",
+    "Deadpool",
+    "Wolverine",
+    "Joker",
+    "Harley Quinn",
+    "Darth Vader",
+    "Luke Skywalker",
+    "Yoda",
+    "Chewbacca",
+    "Indiana Jones",
+    "John Wick",
+    "James Bond",
+    "Sherlock Holmes",
+    "Shrek",
+    "Donkey",
+    "Elsa",
+    "Olaf",
+    "Simba",
+    "Mufasa",
+    "Nemo",
+    "Buzz Lightyear",
+    "Woody",
+    "Minionii",
+    "Godzilla",
+    "King Kong",
+    "Mario",
+    "Luigi",
+    "Pikachu",
+    "Sonic",
+    "Minecraft",
+    "Fortnite",
+    "Roblox",
+    "Pokémon",
+    "Barbie",
+    "Transformers",
+    "Jurassic Park"
+  ]
+};
+
+const state = {
+  audioContext: null,
+  chunks: [],
+  elapsed: 0,
+  intervalId: null,
+  mediaRecorder: null,
+  mode: "couple",
+  playerAName: localStorage.getItem("playerAName") || "Jucător A",
+  playerBName: localStorage.getItem("playerBName") || "Jucător B",
+  reversedUrl: "",
+  scoreA: 0,
+  scoreB: 0,
+  stream: null
+};
+
+const $ = (selector) => document.querySelector(selector);
+
+const stage = $(".stage");
+const recordButton = $("#recordButton");
+const recordLabel = $("#recordLabel");
+const recordIcon = $("#recordIcon");
+const playButton = $("#playButton");
+const statusText = $("#statusText");
+const stageStatusText = $("#stageStatusText");
+const timerText = $("#timerText");
+const promptText = $("#promptText");
+const scoreA = $("#scoreA");
+const scoreB = $("#scoreB");
+const playerAName = $("#playerAName");
+const playerBName = $("#playerBName");
+const helpDialog = $("#helpDialog");
+
+function setStatus(message) {
+  statusText.textContent = message;
+  stageStatusText.textContent = message;
+  stageStatusText.classList.remove("warning");
+}
+
+function setWarning(message) {
+  statusText.textContent = message;
+  stageStatusText.textContent = message;
+  stageStatusText.classList.add("warning");
+}
+
+function isLocalSecureTestAddress() {
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1" || host === "::1";
+}
+
+function explainMicrophoneBlock() {
+  if (!window.isSecureContext && !isLocalSecureTestAddress()) {
+    return "Pe iPhone microfonul este blocat pe HTTP. Pagina se deschide, dar inregistrarea cere un link HTTPS.";
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return "Browserul nu ofera acces la microfon aici. Deschide in Safari actualizat sau foloseste un link HTTPS.";
+  }
+
+  if (!window.MediaRecorder) {
+    return "Acest Safari nu suporta inregistrarea audio in browser. Actualizeaza iOS sau testeaza varianta nativa.";
+  }
+
+  return "";
+}
+
+function formatTime(totalSeconds) {
+  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function startTimer() {
+  state.elapsed = 0;
+  timerText.textContent = "00:00";
+  state.intervalId = window.setInterval(() => {
+    state.elapsed += 1;
+    timerText.textContent = formatTime(state.elapsed);
+  }, 1000);
+}
+
+function stopTimer() {
+  window.clearInterval(state.intervalId);
+  state.intervalId = null;
+}
+
+function pickPrompt() {
+  const list = prompts[state.mode];
+  promptText.textContent = list[Math.floor(Math.random() * list.length)];
+}
+
+function setupPlayerName(input, storageKey, fallback) {
+  input.value = localStorage.getItem(storageKey) || fallback;
+  input.addEventListener("input", () => {
+    const cleanName = input.value.trim();
+    localStorage.setItem(storageKey, cleanName || fallback);
+  });
+}
+
+function getSupportedMimeType() {
+  const types = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm", "audio/ogg;codecs=opus"];
+  return types.find((type) => window.MediaRecorder?.isTypeSupported(type)) || "";
+}
+
+function reverseAudioBuffer(buffer) {
+  const reversed = new AudioBuffer({
+    length: buffer.length,
+    numberOfChannels: buffer.numberOfChannels,
+    sampleRate: buffer.sampleRate
+  });
+
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    const input = buffer.getChannelData(channel);
+    const output = reversed.getChannelData(channel);
+    for (let index = 0; index < input.length; index += 1) {
+      output[index] = input[input.length - index - 1];
+    }
+  }
+
+  return reversed;
+}
+
+function encodeWav(buffer) {
+  const channelCount = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const bytesPerSample = 2;
+  const blockAlign = channelCount * bytesPerSample;
+  const dataSize = buffer.length * blockAlign;
+  const wav = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(wav);
+
+  writeString(view, 0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(view, 8, "WAVE");
+  writeString(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channelCount, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  const channels = Array.from({ length: channelCount }, (_, channel) => buffer.getChannelData(channel));
+  for (let index = 0; index < buffer.length; index += 1) {
+    for (let channel = 0; channel < channelCount; channel += 1) {
+      const sample = Math.max(-1, Math.min(1, channels[channel][index]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+      offset += bytesPerSample;
+    }
+  }
+
+  return new Blob([wav], { type: "audio/wav" });
+}
+
+function writeString(view, offset, value) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
+}
+
+async function buildReversedAudio() {
+  const blob = new Blob(state.chunks, { type: state.mediaRecorder.mimeType || "audio/webm" });
+  const bytes = await blob.arrayBuffer();
+  const BrowserAudioContext = window.AudioContext || window.webkitAudioContext;
+  state.audioContext = state.audioContext || new BrowserAudioContext();
+  const decoded = await state.audioContext.decodeAudioData(bytes.slice(0));
+  const reversed = reverseAudioBuffer(decoded);
+  const wavBlob = encodeWav(reversed);
+
+  if (state.reversedUrl) {
+    URL.revokeObjectURL(state.reversedUrl);
+  }
+
+  state.reversedUrl = URL.createObjectURL(wavBlob);
+  playButton.disabled = false;
+  setStatus("Gata. Apasa Reda invers si da telefonul mai aproape de partener.");
+}
+
+async function startRecording() {
+  const blockReason = explainMicrophoneBlock();
+  if (blockReason) {
+    setWarning(blockReason);
+    return;
+  }
+
+  setStatus("Cer permisiunea pentru microfon...");
+  state.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  state.chunks = [];
+  const mimeType = getSupportedMimeType();
+  state.mediaRecorder = new MediaRecorder(state.stream, mimeType ? { mimeType } : undefined);
+
+  state.mediaRecorder.addEventListener("dataavailable", (event) => {
+    if (event.data.size > 0) {
+      state.chunks.push(event.data);
+    }
+  });
+
+  state.mediaRecorder.addEventListener("stop", async () => {
+    state.stream.getTracks().forEach((track) => track.stop());
+    await buildReversedAudio();
+  });
+
+  state.mediaRecorder.start();
+  startTimer();
+  stage.classList.add("recording");
+  recordButton.classList.add("recording");
+  recordIcon.textContent = "■";
+  recordLabel.textContent = "Opreste";
+  playButton.disabled = true;
+  setStatus("Se inregistreaza. Spune clar un cuvant sau o fraza scurta.");
+}
+
+function stopRecording() {
+  if (state.mediaRecorder?.state === "recording") {
+    state.mediaRecorder.stop();
+  }
+  stopTimer();
+  stage.classList.remove("recording");
+  recordButton.classList.remove("recording");
+  recordIcon.textContent = "●";
+  recordLabel.textContent = "Inregistreaza";
+  setStatus("Procesez sunetul invers...");
+}
+
+async function playReversedAudio() {
+  if (!state.reversedUrl) {
+    return;
+  }
+  const audio = new Audio(state.reversedUrl);
+  audio.volume = 1;
+  await audio.play();
+  setStatus("Se reda varianta inversata.");
+}
+
+recordButton.addEventListener("click", async () => {
+  try {
+    if (state.mediaRecorder?.state === "recording") {
+      stopRecording();
+    } else {
+      await startRecording();
+    }
+  } catch (error) {
+    const blockReason = explainMicrophoneBlock();
+    setWarning(blockReason || "Nu am putut porni microfonul. Verifica permisiunea audio si incearca din nou.");
+  }
+});
+
+playButton.addEventListener("click", playReversedAudio);
+$("#newPromptButton").addEventListener("click", pickPrompt);
+$("#resetButton").addEventListener("click", () => {
+  state.scoreA = 0;
+  state.scoreB = 0;
+  scoreA.textContent = "0";
+  scoreB.textContent = "0";
+  pickPrompt();
+  setStatus("Scor resetat. Incepe o runda noua.");
+});
+
+document.querySelectorAll("[data-score]").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (button.dataset.score === "a") {
+      state.scoreA += 1;
+      scoreA.textContent = String(state.scoreA);
+    } else {
+      state.scoreB += 1;
+      scoreB.textContent = String(state.scoreB);
+    }
+  });
+});
+
+document.querySelectorAll("[data-mode]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.mode = button.dataset.mode;
+    document.querySelectorAll("[data-mode]").forEach((item) => item.classList.toggle("active", item === button));
+    pickPrompt();
+  });
+});
+
+$("#helpButton").addEventListener("click", () => helpDialog.showModal());
+setupPlayerName(playerAName, "playerAName", state.playerAName);
+setupPlayerName(playerBName, "playerBName", state.playerBName);
+
+pickPrompt();
+const startupBlockReason = explainMicrophoneBlock();
+if (startupBlockReason) {
+  setWarning(startupBlockReason);
+}
+
+    </script>
+  </body>
+</html>
