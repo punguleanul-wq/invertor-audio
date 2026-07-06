@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ro">
   <head>
@@ -37,11 +38,26 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-button {
-  border: 0;
+button,
+input {
   color: inherit;
   font: inherit;
+}
+
+button {
+  border: 0;
   touch-action: manipulation;
+  cursor: pointer;
+}
+
+button:active,
+.prompt-card:active {
+  transform: scale(0.97);
+}
+
+button,
+.prompt-card {
+  transition: transform 160ms ease, opacity 160ms ease, filter 160ms ease, background 160ms ease;
 }
 
 .app-shell {
@@ -68,7 +84,8 @@ button {
 .status {
   margin: 0;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 h1,
@@ -78,16 +95,18 @@ h2 {
 }
 
 h1 {
-  font-size: 2rem;
-  line-height: 1.05;
+  font-size: clamp(2rem, 10vw, 3.1rem);
+  line-height: 1.02;
 }
 
 .icon-button {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   border: 1px solid var(--line);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
+  font-size: 1.25rem;
+  font-weight: 900;
 }
 
 .stage {
@@ -101,6 +120,7 @@ h1 {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 14px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
 }
 
@@ -109,6 +129,7 @@ h1 {
   height: 118px;
   display: grid;
   place-items: center;
+  background: transparent;
 }
 
 .sound-orbit span {
@@ -153,17 +174,65 @@ h1 {
   }
 }
 
-.stage h2 {
-  min-height: 92px;
-  font-size: 1.45rem;
-  line-height: 1.15;
+.prompt-card {
+  position: relative;
+  min-height: 104px;
+  padding: 2px 0 0;
+  cursor: pointer;
+}
+
+.prompt-card h2 {
+  min-height: 72px;
+  margin-top: 4px;
+  font-size: clamp(1.45rem, 7vw, 2rem);
+  line-height: 1.12;
+  transition: filter 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+.prompt-cover {
+  position: absolute;
+  inset: -6px 0 0;
+  padding: 16px;
+  border: 1px solid rgba(248, 200, 92, 0.44);
+  border-radius: 16px;
+  background: rgba(30, 28, 22, 0.96);
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.prompt-cover strong {
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.prompt-cover span {
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.prompt-card.hidden h2 {
+  filter: blur(12px);
+  opacity: 0.12;
+  transform: scale(0.98);
+}
+
+.prompt-card.hidden .prompt-cover {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .timer {
   margin: 0;
   color: var(--gold);
-  font-size: 2.35rem;
-  font-weight: 800;
+  font-size: clamp(2.7rem, 15vw, 4.2rem);
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
 
@@ -178,9 +247,9 @@ h1 {
 .actions button,
 .score-panel button,
 dialog button {
-  min-height: 52px;
+  min-height: 54px;
   border-radius: 14px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .record-button {
@@ -200,6 +269,10 @@ dialog button {
 .secondary-button {
   background: var(--accent-2);
   color: #031d19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .secondary-button:disabled {
@@ -233,12 +306,12 @@ dialog button {
 }
 
 .mode {
-  min-height: 42px;
+  min-height: 44px;
   border-radius: 12px;
   background: transparent;
   color: var(--muted);
   font-size: 0.9rem;
-  font-weight: 750;
+  font-weight: 800;
 }
 
 .mode.active {
@@ -270,12 +343,12 @@ dialog button {
   color: var(--text);
   font: inherit;
   font-size: 0.95rem;
-  font-weight: 750;
+  font-weight: 800;
   padding: 8px 10px;
 }
 
 .score-panel strong {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   line-height: 1;
 }
 
@@ -295,8 +368,6 @@ dialog button {
 
 .status {
   display: none;
-  min-height: 38px;
-  line-height: 1.35;
 }
 
 dialog {
@@ -332,7 +403,7 @@ dialog button {
   }
 
   .stage {
-    min-height: 360px;
+    min-height: 370px;
     padding: 18px;
   }
 
@@ -358,22 +429,35 @@ dialog button {
       </section>
 
       <section class="stage" aria-label="Recorder audio">
-        <div class="sound-orbit" aria-hidden="true">
+        <button class="sound-orbit" id="micButton" type="button" aria-label="Pornește sau oprește înregistrarea">
           <span></span>
           <span></span>
           <span></span>
+        </button>
+
+        <div class="prompt-card" id="promptCard" role="button" tabindex="0" aria-label="Provocarea rundei">
+          <p class="prompt-label">Provocarea rundei</p>
+          <h2 id="promptText">Spune un cuvânt scurt și lasă partenerul să ghicească varianta inversată.</h2>
+          <div class="prompt-cover" aria-hidden="true">
+            <strong>Răspuns ascuns</strong>
+            <span>Oponentul poate asculta fără să vadă indiciul.</span>
+          </div>
         </div>
-        <p class="prompt-label">Provocarea rundei</p>
-        <h2 id="promptText">Spune un cuvant scurt si lasa partenerul sa ghiceasca varianta inversata.</h2>
+
         <p class="timer" id="timerText">00:00</p>
+
         <div class="controls">
           <button class="record-button" id="recordButton" type="button">
             <span id="recordIcon">●</span>
-            <span id="recordLabel">Inregistreaza</span>
+            <span id="recordLabel">Înregistrează</span>
           </button>
-          <button class="secondary-button" id="playButton" type="button" disabled>Reda invers</button>
+          <button class="secondary-button" id="playButton" type="button" disabled>
+            <span>▶</span>
+            <span>Redă invers</span>
+          </button>
         </div>
-        <p class="stage-status" id="stageStatusText">Atinge inregistrare si permite accesul la microfon.</p>
+
+        <p class="stage-status" id="stageStatusText">Atinge înregistrare și permite accesul la microfon.</p>
       </section>
 
       <section class="mode-strip" aria-label="Mod joc">
@@ -400,20 +484,20 @@ dialog button {
         </article>
       </section>
 
-      <section class="actions" aria-label="Actiuni runda">
-        <button id="newPromptButton" type="button">Provocare noua</button>
+      <section class="actions" aria-label="Acțiuni rundă">
+        <button id="newPromptButton" type="button">Provocare nouă</button>
         <button id="resetButton" type="button">Reset</button>
       </section>
 
-      <p class="status" id="statusText">Atinge inregistrare si permite accesul la microfon.</p>
+      <p class="status" id="statusText">Atinge înregistrare și permite accesul la microfon.</p>
     </main>
 
     <dialog id="helpDialog">
       <form method="dialog">
-        <h2>Cum se joaca</h2>
-        <p>Un jucator spune un cuvant sau o fraza scurta. Aplicatia intoarce sunetul si il reda. Celalalt incearca sa ghiceasca originalul.</p>
-        <p>Pentru iPhone, deschide pagina in Safari si foloseste Share > Add to Home Screen.</p>
-        <button type="submit">Am inteles</button>
+        <h2>Cum se joacă</h2>
+        <p>Un jucător spune un cuvânt sau o frază scurtă. Aplicația întoarce sunetul și îl redă. Celălalt încearcă să ghicească originalul.</p>
+        <p>După ce începe înregistrarea, provocarea se ascunde automat pentru ca oponentul să nu vadă răspunsul.</p>
+        <button type="submit">Am înțeles</button>
       </form>
     </dialog>
     <script type="module">
@@ -758,6 +842,8 @@ const statusText = $("#statusText");
 const stageStatusText = $("#stageStatusText");
 const timerText = $("#timerText");
 const promptText = $("#promptText");
+const promptCard = $("#promptCard");
+const micButton = $("#micButton");
 const scoreA = $("#scoreA");
 const scoreB = $("#scoreB");
 const playerAName = $("#playerAName");
@@ -783,15 +869,15 @@ function isLocalSecureTestAddress() {
 
 function explainMicrophoneBlock() {
   if (!window.isSecureContext && !isLocalSecureTestAddress()) {
-    return "Pe iPhone microfonul este blocat pe HTTP. Pagina se deschide, dar inregistrarea cere un link HTTPS.";
+    return "Pe iPhone microfonul este blocat pe HTTP. Pagina se deschide, dar înregistrarea cere un link HTTPS.";
   }
 
   if (!navigator.mediaDevices?.getUserMedia) {
-    return "Browserul nu ofera acces la microfon aici. Deschide in Safari actualizat sau foloseste un link HTTPS.";
+    return "Browserul nu oferă acces la microfon aici. Deschide în Safari actualizat sau folosește un link HTTPS.";
   }
 
   if (!window.MediaRecorder) {
-    return "Acest Safari nu suporta inregistrarea audio in browser. Actualizeaza iOS sau testeaza varianta nativa.";
+    return "Acest Safari nu suportă înregistrarea audio în browser. Actualizează iOS sau testează varianta nativă.";
   }
 
   return "";
@@ -820,6 +906,15 @@ function stopTimer() {
 function pickPrompt() {
   const list = prompts[state.mode];
   promptText.textContent = list[Math.floor(Math.random() * list.length)];
+  revealPrompt();
+}
+
+function hidePrompt() {
+  promptCard.classList.add("hidden");
+}
+
+function revealPrompt() {
+  promptCard.classList.remove("hidden");
 }
 
 function setupPlayerName(input, storageKey, fallback) {
@@ -910,7 +1005,8 @@ async function buildReversedAudio() {
 
   state.reversedUrl = URL.createObjectURL(wavBlob);
   playButton.disabled = false;
-  setStatus("Gata. Apasa Reda invers si da telefonul mai aproape de partener.");
+  hidePrompt();
+  setStatus("Gata. Apasă Redă invers și dă telefonul mai aproape de partener.");
 }
 
 async function startRecording() {
@@ -938,13 +1034,14 @@ async function startRecording() {
   });
 
   state.mediaRecorder.start();
+  hidePrompt();
   startTimer();
   stage.classList.add("recording");
   recordButton.classList.add("recording");
   recordIcon.textContent = "■";
-  recordLabel.textContent = "Opreste";
+  recordLabel.textContent = "Oprește";
   playButton.disabled = true;
-  setStatus("Se inregistreaza. Spune clar un cuvant sau o fraza scurta.");
+  setStatus("Se înregistrează. Spune clar un cuvânt sau o frază scurtă.");
 }
 
 function stopRecording() {
@@ -955,7 +1052,7 @@ function stopRecording() {
   stage.classList.remove("recording");
   recordButton.classList.remove("recording");
   recordIcon.textContent = "●";
-  recordLabel.textContent = "Inregistreaza";
+  recordLabel.textContent = "Înregistrează";
   setStatus("Procesez sunetul invers...");
 }
 
@@ -965,8 +1062,16 @@ async function playReversedAudio() {
   }
   const audio = new Audio(state.reversedUrl);
   audio.volume = 1;
+  stage.classList.add("playing");
+  playButton.querySelector("span:first-child").textContent = "❚❚";
+  playButton.querySelector("span:last-child").textContent = "Se redă...";
+  audio.addEventListener("ended", () => {
+    stage.classList.remove("playing");
+    playButton.querySelector("span:first-child").textContent = "▶";
+    playButton.querySelector("span:last-child").textContent = "Redă invers";
+  }, { once: true });
   await audio.play();
-  setStatus("Se reda varianta inversata.");
+  setStatus("Se redă varianta inversată.");
 }
 
 recordButton.addEventListener("click", async () => {
@@ -978,7 +1083,7 @@ recordButton.addEventListener("click", async () => {
     }
   } catch (error) {
     const blockReason = explainMicrophoneBlock();
-    setWarning(blockReason || "Nu am putut porni microfonul. Verifica permisiunea audio si incearca din nou.");
+    setWarning(blockReason || "Nu am putut porni microfonul. Verifică permisiunea audio și încearcă din nou.");
   }
 });
 
@@ -990,7 +1095,7 @@ $("#resetButton").addEventListener("click", () => {
   scoreA.textContent = "0";
   scoreB.textContent = "0";
   pickPrompt();
-  setStatus("Scor resetat. Incepe o runda noua.");
+  setStatus("Scor resetat. Începe o rundă nouă.");
 });
 
 document.querySelectorAll("[data-score]").forEach((button) => {
@@ -1014,6 +1119,37 @@ document.querySelectorAll("[data-mode]").forEach((button) => {
 });
 
 $("#helpButton").addEventListener("click", () => helpDialog.showModal());
+document.querySelector(".nav-record")?.addEventListener("click", () => recordButton.click());
+micButton?.addEventListener("click", () => recordButton.click());
+promptCard.addEventListener("click", async () => {
+  if (promptCard.classList.contains("hidden")) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard?.writeText(promptText.textContent);
+    setStatus("Provocarea a fost copiată.");
+  } catch {
+    setStatus("Provocarea este pregătită pentru rundă.");
+  }
+});
+
+let touchStartX = 0;
+promptCard.addEventListener("touchstart", (event) => {
+  touchStartX = event.changedTouches[0].clientX;
+}, { passive: true });
+promptCard.addEventListener("touchend", (event) => {
+  const deltaX = event.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(deltaX) > 42) {
+    pickPrompt();
+  }
+}, { passive: true });
+promptCard.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    pickPrompt();
+  }
+});
 setupPlayerName(playerAName, "playerAName", state.playerAName);
 setupPlayerName(playerBName, "playerBName", state.playerBName);
 
